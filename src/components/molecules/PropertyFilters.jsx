@@ -61,15 +61,14 @@ const PropertyFilters = ({ filters, onFiltersChange, onClear }) => {
         </Button>
       </div>
 
-      {/* Filter Content */}
+{/* Filter Content */}
       <AnimatePresence>
-        {(isOpen || true) && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="lg:block"
-          >
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          className={`${isOpen ? 'block' : 'hidden'} lg:block`}
+        >
             <div className="p-4 space-y-4">
               {/* Price Range */}
               <div className="space-y-2">
