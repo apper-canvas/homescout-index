@@ -165,9 +165,8 @@ const PropertyFilters = ({ filters, onFiltersChange, onClear }) => {
               >
                 Clear Filters
               </Button>
-            </div>
+</div>
           </motion.div>
-        )}
       </AnimatePresence>
     </div>
   )
