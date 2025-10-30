@@ -1,10 +1,11 @@
-import Header from "@/components/organisms/Header"
+import { Outlet } from "react-router-dom";
+import Header from '@/components/organisms/Header'
 
-const Layout = ({ children }) => {
+function Layout() {
   return (
-    <div className="min-h-screen bg-background">
+<div className="min-h-screen bg-background">
       <Header />
-      <main>{children}</main>
+      <main><Outlet /></main>
     </div>
   )
 }
