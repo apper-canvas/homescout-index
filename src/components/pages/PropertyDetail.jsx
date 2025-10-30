@@ -4,6 +4,8 @@ import { motion } from "framer-motion"
 import Button from "@/components/atoms/Button"
 import Badge from "@/components/atoms/Badge"
 import ApperIcon from "@/components/ApperIcon"
+import Input from "@/components/atoms/Input"
+import Label from "@/components/atoms/Label"
 import Loading from "@/components/ui/Loading"
 import Error from "@/components/ui/Error"
 import { formatPrice, formatSquareFeet, formatDate } from "@/utils/formatters"
@@ -20,8 +22,14 @@ const PropertyDetail = () => {
   const [isSaved, setIsSaved] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageErrors, setImageErrors] = useState(new Set())
-  const [showContactForm, setShowContactForm] = useState(false)
-
+const [showContactForm, setShowContactForm] = useState(false)
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
   useEffect(() => {
     loadProperty()
     checkIfSaved()
@@ -77,9 +85,50 @@ const PropertyDetail = () => {
     }
   }
 
-  const handleContactAgent = () => {
-    toast.success("Contact form would open here")
+const handleContactAgent = () => {
     setShowContactForm(true)
+  }
+
+  const handleContactFormChange = (e) => {
+    const { name, value } = e.target
+    setContactForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmitContact = async (e) => {
+    e.preventDefault()
+    
+    // Validation
+    if (!contactForm.name.trim()) {
+      toast.error('Please enter your name')
+      return
+    }
+    if (!contactForm.email.trim() || !contactForm.email.includes('@')) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+    if (!contactForm.phone.trim()) {
+      toast.error('Please enter your phone number')
+      return
+    }
+    if (!contactForm.message.trim()) {
+      toast.error('Please enter a message')
+      return
+    }
+
+    setIsSubmitting(true)
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false)
+      setShowContactForm(false)
+      setContactForm({ name: '', email: '', phone: '', message: '' })
+      toast.success('Your message has been sent to the agent!')
+    }, 1500)
+  }
+
+  const handleCloseModal = () => {
+    setShowContactForm(false)
+    setContactForm({ name: '', email: '', phone: '', message: '' })
   }
 
   if (loading) return <Loading />
@@ -355,8 +404,134 @@ const PropertyDetail = () => {
               </div>
             </motion.div>
           </div>
-        </div>
+</div>
       </div>
+
+      {/* Contact Agent Modal */}
+      {showContactForm && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={handleCloseModal}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-gradient-to-r from-primary-600 to-primary-700 p-6 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <h3 className="text-2xl font-display font-bold text-white">
+                  Contact Agent
+                </h3>
+                <button
+                  onClick={handleCloseModal}
+                  className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+                  aria-label="Close modal"
+                >
+                  <ApperIcon name="X" size={24} />
+                </button>
+              </div>
+              <p className="text-primary-100 mt-2">
+                Get in touch about {property?.address}
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmitContact} className="p-6 space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-gray-700 font-medium">
+                  Full Name *
+                </Label>
+                <Input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={contactForm.name}
+                  onChange={handleContactFormChange}
+                  className="w-full"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-700 font-medium">
+                  Email Address *
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="your.email@example.com"
+                  value={contactForm.email}
+                  onChange={handleContactFormChange}
+                  className="w-full"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-gray-700 font-medium">
+                  Phone Number *
+                </Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  placeholder="(123) 456-7890"
+                  value={contactForm.phone}
+                  onChange={handleContactFormChange}
+                  className="w-full"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="message" className="text-gray-700 font-medium">
+                  Message *
+                </Label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="4"
+                  placeholder="I'm interested in this property and would like to schedule a viewing..."
+                  value={contactForm.message}
+                  onChange={handleContactFormChange}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCloseModal}
+                  className="flex-1"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <ApperIcon name="Loader2" size={16} className="animate-spin" />
+                      Sending...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <ApperIcon name="Send" size={16} />
+                      Send Message
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
